@@ -26,12 +26,18 @@ async function run() {
         const db = client.db("MediQueue");
         const tutorCollection = db.collection("tutorData");
 
+        // get tutor data in home page
+        app.get("/homePageTutorData", async (req, res) => {
+            const result = await tutorCollection.aggregate([{ $limit: 6 }]).toArray()
+            res.send(result);
+        })
+
         // creating post api for add tutor data
         app.post("/addTutor", async (req, res) => {
             const tutors = req.body;
             const result = await tutorCollection.insertOne(tutors);
             res.send(result);
-        })
+        });
 
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
