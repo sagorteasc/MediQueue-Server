@@ -39,6 +39,12 @@ async function run() {
             res.send(result);
         });
 
+        // // get tutor data
+        app.get("/allTutorData", async (req, res) => {
+            const result = await tutorCollection.find().toArray();
+            res.send(result);
+        })
+
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
