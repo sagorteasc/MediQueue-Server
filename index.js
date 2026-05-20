@@ -55,6 +55,24 @@ async function run() {
             res.send(result);
         })
 
+        // reduce slot number
+        app.patch("/allTutorData/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = {
+                _id: new ObjectId(id)
+            }
+
+            const tutor = await tutorCollection.findOne(query);
+
+            const update = {
+                $set: {
+                    totalSlot: (parseInt(tutor.totalSlot) - 1).toString()
+                }
+            }
+            const result = await tutorCollection.updateOne(query, update);
+            res.send(result)
+        })
+
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
