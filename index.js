@@ -165,7 +165,20 @@ async function run() {
             res.send(result);
         });
 
-        // await client.db("admin").command({ ping: 1 });
+        // get api for filtering
+        app.get("/filterTutor", async (req, res) => {
+            const { startDate, endDate } = req.query;
+
+            const query = {
+                sessionStartDate: {
+                    $gte: startDate,
+                    $lte: endDate
+                }
+            };
+            const result = await tutorCollection.find(query).toArray();
+            res.send(result);
+        });
+
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // await client.close();
