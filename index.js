@@ -152,6 +152,19 @@ async function run() {
             res.send(result);
         })
 
+        // get api for search by tutor name
+        app.get("/searchTutor", async (req, res) => {
+            const search = req.query.search;
+            const query = {
+                name: {
+                    $regex: search,
+                    $options: "i"
+                }
+            };
+            const result = await tutorCollection.find(query).toArray();
+            res.send(result);
+        });
+
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
