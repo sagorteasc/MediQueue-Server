@@ -89,7 +89,7 @@ async function run() {
         })
 
         // patch api for changing the state to rejected
-        app.patch("/booking/:id", async (req, res) => {
+        app.patch("/booking/reject/:id", async (req, res) => {
             const id = req.params.id;
             const query = {
                 _id: new ObjectId(id)
@@ -105,7 +105,7 @@ async function run() {
         })
 
         // patch api for changing the state to confirmed
-        app.patch("/booking/:id", async (req, res) => {
+        app.patch("/booking/confirm/:id", async (req, res) => {
             const id = req.params.id;
             const query = {
                 _id: new ObjectId(id)
@@ -117,6 +117,13 @@ async function run() {
                 }
             }
             const result = await userBookingCollection.updateOne(query, update);
+            res.send(result);
+        })
+
+        // get api for get the user create tutor information
+        app.get("/myTutor/:userId", async (req, res) => {
+            const userId = req.params.userId;
+            const result = await tutorCollection.find({ userId }).toArray();
             res.send(result);
         })
 
