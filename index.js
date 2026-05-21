@@ -21,7 +21,7 @@ app.use(express.json());
 
 async function run() {
     try {
-        await client.connect();
+        // await client.connect();
 
         const db = client.db("MediQueue");
         const tutorCollection = db.collection("tutorData");
@@ -165,7 +165,7 @@ async function run() {
             res.send(result);
         });
 
-        await client.db("admin").command({ ping: 1 });
+        // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // await client.close();
