@@ -25,6 +25,7 @@ async function run() {
 
         const db = client.db("MediQueue");
         const tutorCollection = db.collection("tutorData");
+        const userBookingCollection = db.collection("bookings");
 
         // get tutor data in home page
         app.get("/homePageTutorData", async (req, res) => {
@@ -71,6 +72,13 @@ async function run() {
             }
             const result = await tutorCollection.updateOne(query, update);
             res.send(result)
+        })
+
+        // post api for my booking section
+        app.post("/booking", async (req, res) => {
+            const bookingData = req.body;
+            const result = await userBookingCollection.insertOne(bookingData);
+            res.send(result);
         })
 
         await client.db("admin").command({ ping: 1 });
