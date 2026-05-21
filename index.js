@@ -81,6 +81,45 @@ async function run() {
             res.send(result);
         })
 
+        // get api for getting user booking information
+        app.get("/booking/:userId", async (req, res) => {
+            const userId = req.params.userId;
+            const result = await userBookingCollection.find({ userId }).toArray();
+            res.send(result);
+        })
+
+        // patch api for changing the state to rejected
+        app.patch("/booking/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = {
+                _id: new ObjectId(id)
+            }
+
+            const update = {
+                $set: {
+                    status: "Rejected"
+                }
+            }
+            const result = await userBookingCollection.updateOne(query, update);
+            res.send(result);
+        })
+
+        // patch api for changing the state to confirmed
+        app.patch("/booking/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = {
+                _id: new ObjectId(id)
+            }
+
+            const update = {
+                $set: {
+                    status: "Confirmed"
+                }
+            }
+            const result = await userBookingCollection.updateOne(query, update);
+            res.send(result);
+        })
+
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
