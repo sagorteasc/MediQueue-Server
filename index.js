@@ -127,6 +127,31 @@ async function run() {
             res.send(result);
         })
 
+        // delete api for delete an existing tutor
+        app.delete("/allTutorData/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = {
+                _id: new ObjectId(id)
+            }
+            const result = await tutorCollection.deleteOne(query);
+            res.send(result);
+        })
+
+        // patch api for edit tutor details
+        app.patch("/allTutorData/:id", async (req, res) => {
+            const id = req.params.id;
+            const updateData = req.body;
+            const query = {
+                _id: new ObjectId(id)
+            }
+
+            const update = {
+                $set: updateData
+            }
+            const result = await tutorCollection.updateOne(query, update);
+            res.send(result);
+        })
+
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
