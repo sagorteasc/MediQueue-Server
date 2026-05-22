@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const dotenv = require('dotenv');
+const { createRemoteJWKSet, jwtVerify } = require('jose-cjs');
 const app = express()
 const PORT = process.env.PORT || 8000
 dotenv.config();
@@ -19,6 +20,31 @@ const client = new MongoClient(uri, {
 app.use(cors());
 app.use(express.json());
 
+const JWKS = createRemoteJWKSet(
+    new URL(`${process.env.NEXT_PUBLIC_CLIENT_URL}/api/auth/jwks`)
+)
+
+const verifyToken = async (req, res, next) => {
+    const authHeader = req?.headers.authorization;
+
+    if (!authHeader) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    if (!token) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+        const { payload } = await jwtVerify(token, JWKS)
+        next();
+    } catch (error) {
+        return res.status(403).json({ message: "Forbidden" })
+    }
+}
+
 async function run() {
     try {
         // await client.connect();
@@ -34,7 +60,7 @@ async function run() {
         })
 
         // creating post api for add tutor data
-        app.post("/addTutor", async (req, res) => {
+        app.post("/addTutor", verifyToken, async (req, res) => {
             const tutors = req.body;
             const result = await tutorCollection.insertOne(tutors);
             res.send(result);
@@ -47,7 +73,7 @@ async function run() {
         })
 
         // get tutor details
-        app.get("/allTutorData/:id", async (req, res) => {
+        app.get("/allTutorData/:id", verifyToken, async (req, res) => {
             const id = req.params.id;
             const query = {
                 _id: new ObjectId(id)
@@ -57,7 +83,7 @@ async function run() {
         })
 
         // reduce slot number
-        app.patch("/allTutorData/:id", async (req, res) => {
+        app.put("/allTutorData/:id/decreaseSlot", verifyToken, async (req, res) => {
             const id = req.params.id;
             const query = {
                 _id: new ObjectId(id)
@@ -75,21 +101,21 @@ async function run() {
         })
 
         // post api for my booking section
-        app.post("/booking", async (req, res) => {
+        app.post("/booking", verifyToken, async (req, res) => {
             const bookingData = req.body;
             const result = await userBookingCollection.insertOne(bookingData);
             res.send(result);
         })
 
         // get api for getting user booking information
-        app.get("/booking/:userId", async (req, res) => {
+        app.get("/booking/:userId", verifyToken, async (req, res) => {
             const userId = req.params.userId;
             const result = await userBookingCollection.find({ userId }).toArray();
             res.send(result);
         })
 
         // patch api for changing the state to rejected
-        app.patch("/booking/reject/:id", async (req, res) => {
+        app.patch("/booking/reject/:id", verifyToken, async (req, res) => {
             const id = req.params.id;
             const query = {
                 _id: new ObjectId(id)
@@ -105,7 +131,7 @@ async function run() {
         })
 
         // patch api for changing the state to confirmed
-        app.patch("/booking/confirm/:id", async (req, res) => {
+        app.patch("/booking/confirm/:id", verifyToken, async (req, res) => {
             const id = req.params.id;
             const query = {
                 _id: new ObjectId(id)
@@ -121,14 +147,14 @@ async function run() {
         })
 
         // get api for get the user create tutor information
-        app.get("/myTutor/:userId", async (req, res) => {
+        app.get("/myTutor/:userId", verifyToken, async (req, res) => {
             const userId = req.params.userId;
             const result = await tutorCollection.find({ userId }).toArray();
             res.send(result);
         })
 
         // delete api for delete an existing tutor
-        app.delete("/allTutorData/:id", async (req, res) => {
+        app.delete("/allTutorData/:id", verifyToken, async (req, res) => {
             const id = req.params.id;
             const query = {
                 _id: new ObjectId(id)
@@ -138,7 +164,7 @@ async function run() {
         })
 
         // patch api for edit tutor details
-        app.patch("/allTutorData/:id", async (req, res) => {
+        app.patch("/allTutorData/:id", verifyToken, async (req, res) => {
             const id = req.params.id;
             const updateData = req.body;
             const query = {
